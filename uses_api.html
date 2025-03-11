@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sea Level in Palm Beach</title>
+</head>
+<body>
+
+    <h1 style="width: 50%; text-align: center; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">What is the Tide in Palm Beach</h1>
+    <p id="currentTide" style="width: 50%; text-align: center; font-family: 'Courier New', Courier, monospace;"></p>
+    <p id="tideChange" style="width: 50%; text-align: center; font-family: 'Courier New', Courier, monospace;"></p>
+
+    <script>
+        // location of Palm Beach FL!
+        const lat = 26.70;
+        const lng = -80.03;
+        const tideElement = document.getElementById("currentTide"); //Going to update this element with tide data
+        const changeElement = document.getElementById("tideChange"); //Going to update this element with tide data
+
+
+        fetch(`https://api.stormglass.io/v2/tide/sea-level/point?lat=${lat}&lng=${lng}&start=2020-02-24&end=2020-02-25`, {
+        headers: {
+            'Authorization': 'aab48e4c-fecb-11ef-a906-0242ac130003-aab48ef6-fecb-11ef-a906-0242ac130003'
+        }
+        }).then((response) => response.json()).then((jsonData) => {
+            
+
+            let currentTide = jsonData.data[jsonData.data.length - 1]; //most recent
+            let tideHeight = currentTide.sg;
+            tideElement.textContent = `The tide level is ${tideHeight} meters`;
+
+            //now we compare the movement in tide to determin if it is rising or falling
+            let lastTide = jsonData.data[jsonData.data.length - 2]; //second most recennt
+            let lastTideHeight = lastTide.sg;
+            let tideStatus = "rising";
+            if(tideHeight < lastTideHeight) {
+                tideStatus = "falling";
+            }
+            if(tideHeight === lastTideHeight) {
+                tideStatus = "slack";
+            }
+            changeElement.textContent = `The tide is ${tideStatus}.`;
+
+        }).catch(error => {
+        console.error("Error fetching tide data:", error);
+        tideElement.textContent = "Error loading tide data.";
+    });
+    </script>
+    
+</body>
+</html>
